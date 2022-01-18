@@ -1,10 +1,10 @@
 const express =  require('express');
-const router = express.Router();
+const router = express.Router({mergeParams : true}); //merge params will give access to this using 
 const catchAsync = require('../utils/catchAsync');
 const ExpressError = require('../utils/ExpressError')
 const Event = require('../models/event')
 const Review = require('../models/review')
-const {eventSchema, reviewSchema} = require('../schemas');
+const {reviewSchema} = require('../schemas');
 
 
 const validateReview = (req,res,next)=>{
