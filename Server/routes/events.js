@@ -1,7 +1,20 @@
 const express =  require('express');
 const router = express.Router();
+const catchAsync = require('../utils/catchAsync');
+const ExpressError = require('../utils/ExpressError')
+const Event = require('../models/event')
+const {eventSchema, reviewSchema} = require('../schemas');
 
-
+const validateEvent = (req,res,next)=>{
+    const{error} = eventSchema.validate(req.body);
+     if (error){
+        const msg = error.details.map(el=>el.message).join(',');
+        throw new ExpressError(msg, 400);
+    }
+    else {
+        next();
+    }
+}
 
 router.get('/', catchAsync(async (req, res, next) => {
     try {
@@ -25,7 +38,7 @@ router.post('/', validateEvent, catchAsync(async (req, res) => {
 }));
 
 //Updating the Event
-app.put('/:id',validateEvent, catchAsync( async (req, res) => {
+router.put('/:id',validateEvent, catchAsync( async (req, res) => {
     const { id } = req.params;
     try {
         const UpdatedEvent = await Event.findByIdAndUpdate(id, { ...req.body }, { new: true });
@@ -40,7 +53,7 @@ app.put('/:id',validateEvent, catchAsync( async (req, res) => {
 
 
 
-app.delete('/:id', catchAsync(async (req, res) => {
+router.delete('/:id', catchAsync(async (req, res) => {
     const { id } = req.params;
     try {
         await Event.findOneAndDelete(id);
@@ -56,7 +69,7 @@ app.delete('/:id', catchAsync(async (req, res) => {
 
 
 
-app.get('/:id', catchAsync(async (req, res) => {
+router.get('/:id', catchAsync(async (req, res) => {
     const { id } = req.params;
     try {
         const foundEvent = await Event.findById(id).populate('reviews');
